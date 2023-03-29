@@ -21,19 +21,19 @@ class Program
             nsm.AddNamespace("TimbreFiscalDigital", "http://www.sat.gob.mx/TimbreFiscalDigital");
 
             XmlNode cancel = xmlDoc.CreateNode(XmlNodeType.Element, "Cancelacion", nsm.DefaultNamespace);
-            
-
-            XmlNode folio = xmlDoc.CreateNode(XmlNodeType.Element, "Folio", nsm.DefaultNamespace);
 
             XmlAttribute attribute = xmlDoc.CreateAttribute("Fecha");
             attribute.Value = DateTime.Now.ToString("s");
-            folio.Attributes.Append(attribute);
+            cancel.Attributes.Append(attribute);
 
             XmlAttribute attributeRcf = xmlDoc.CreateAttribute("RFCEmisor");
             attributeRcf.Value = System.Configuration.ConfigurationManager.AppSettings["RFCEmisor"];
-            folio.Attributes.Append(attributeRcf);
+            cancel.Attributes.Append(attributeRcf);
 
-            string[] files = Directory.GetFiles(System.Configuration.ConfigurationManager.AppSettings["XMLPath"], "*.xml", SearchOption.AllDirectories);
+            XmlNode folio = xmlDoc.CreateNode(XmlNodeType.Element, "Folio", nsm.DefaultNamespace);
+                     
+
+            string[] files = Directory.GetFiles(System.Configuration.ConfigurationManager.AppSettings["XMLPath"], "*.xml");
             foreach (string f in files)
             {
                 file = f;
@@ -43,7 +43,6 @@ class Program
                 if (uuid != null)
                 {
                     XmlNode folios = xmlDoc.CreateNode(XmlNodeType.Element, "Folios", nsm.DefaultNamespace);
-                    
                     XmlAttribute attributefolio = xmlDoc.CreateAttribute("FolioSustitucion");
                     attributefolio.Value = string.Empty;
                     folios.Attributes.Append(attributefolio);
@@ -59,15 +58,17 @@ class Program
                     folio.AppendChild(folios);
                 }
 
+
+                cancel.AppendChild(folio);
+                xmlDoc.AppendChild(cancel);
+                xmlDoc.Save(Path.Combine(System.Configuration.ConfigurationManager.AppSettings["XMLProcesedPath"] ?? string.Empty, "cancelacion_" + Path.GetFileName(file)));
             }
-            xmlDoc.AppendChild(folio);
-            xmlDoc.Save(Path.Combine(System.Configuration.ConfigurationManager.AppSettings["XMLProcesedPath"] ?? string.Empty, Path.GetFileName(file)));
         }
         catch (Exception ex)
         {
             string message = ex.Message + " " + ex.StackTrace;
             Log.WriteLog(message);
-            xmlDoc.Save(Path.Combine(System.Configuration.ConfigurationManager.AppSettings["XMLFailedPath"], Path.GetFileName(file)));
+            xmlDoc.Save(Path.Combine(System.Configuration.ConfigurationManager.AppSettings["XMLFailedPath"], "cancelacion_" + Path.GetFileName(file)));
         }
     }
 
