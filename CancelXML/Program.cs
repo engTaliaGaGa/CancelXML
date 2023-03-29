@@ -48,7 +48,7 @@ class Program
                     folios.Attributes.Append(attributefolio);
 
                     XmlAttribute attributemotivo = xmlDoc.CreateAttribute("Motivo");
-                    attributemotivo.Value = "02";
+                    attributemotivo.Value = System.Configuration.ConfigurationManager.AppSettings["Motivo"];
                     folios.Attributes.Append(attributemotivo);
 
                     XmlAttribute attributeUUID = xmlDoc.CreateAttribute("UUID");
